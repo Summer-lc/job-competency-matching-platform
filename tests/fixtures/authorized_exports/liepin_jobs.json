@@ -1,0 +1,14 @@
+[
+  {
+    "position_id": "LIEPIN-001",
+    "position_name": "Java开发工程师",
+    "company_name": "示例数据有限公司",
+    "location": "深圳",
+    "salary": "20-30K",
+    "experience": "3-5年",
+    "education": "本科",
+    "job_description": "负责Java后端平台开发，使用Spring Boot、Spring Cloud及MyBatis完成接口、数据库、自动化测试、性能优化、上线监控、故障排查和技术文档维护。",
+    "published_at": "2026-08-09T08:00:00+08:00",
+    "job_url": "https://www.liepin.com/job/LIEPIN-001.shtml"
+  }
+]

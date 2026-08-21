@@ -1,0 +1,222 @@
+{
+  "JAVA_DEVELOPER": {
+    "queries": ["Java", "软件开发"],
+    "title_aliases": ["Java开发工程师", "Java工程师", "Java后端工程师", "高级Java工程师", "Java"],
+    "skill_indicators": ["Spring Boot", "Spring Cloud", "JVM", "MyBatis"],
+    "exclusions": ["仅使用Python", "仅使用Go"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "PYTHON_BACKEND": {
+    "queries": ["Python", "后端开发"],
+    "title_aliases": ["Python后端工程师", "Python服务端开发", "Python开发工程师", "Python"],
+    "skill_indicators": ["Django", "FastAPI", "Flask", "Celery"],
+    "exclusions": ["Python数据分析", "Python爬虫兼职"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "GO_DEVELOPER": {
+    "queries": ["Golang", "后端开发"],
+    "title_aliases": ["Go开发工程师", "Golang开发工程师", "Go后端工程师", "Golang后端工程师", "Go", "Golang"],
+    "skill_indicators": ["Golang", "Gin", "gRPC", "Go微服务"],
+    "exclusions": ["围棋", "Google Ads"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "FRONTEND_DEVELOPER": {
+    "queries": ["前端", "Web开发"],
+    "title_aliases": ["前端开发工程师", "Web前端工程师", "Web开发工程师", "前端工程师", "Frontend Engineer", "Front-end Engineer"],
+    "skill_indicators": ["React", "Vue", "TypeScript", "CSS", "Webpack"],
+    "exclusions": ["前端销售", "硬件前端"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "DEVOPS_ENGINEER": {
+    "queries": ["DevOps", "运维"],
+    "title_aliases": ["DevOps工程师", "DevOps开发工程师", "DevOps"],
+    "skill_indicators": ["Jenkins", "GitLab CI", "CI/CD", "Terraform", "持续交付"],
+    "exclusions": ["SLO", "错误预算", "站点可靠性"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "SRE_ENGINEER": {
+    "queries": ["SRE", "可靠性"],
+    "title_aliases": ["SRE工程师", "站点可靠性工程师", "SRE", "稳定性保障工程师", "稳定性工程师", "可靠性保障工程师"],
+    "skill_indicators": ["SLO", "错误预算", "Prometheus", "可观测性", "故障演练", "服务可靠性", "可用性目标", "故障复盘", "高可用", "故障治理"],
+    "exclusions": ["仅负责发布流水线", "仅负责CI/CD"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "CLOUD_NATIVE_ENGINEER": {
+    "queries": ["云原生", "Kubernetes"],
+    "title_aliases": ["云原生工程师", "云原生开发工程师", "云原生平台工程师", "Cloud Infrastructure Engineer", "Cloud Platform Engineer"],
+    "skill_indicators": ["Kubernetes", "Service Mesh", "Operator", "容器编排", "Istio", "container orchestration", "cloud infrastructure"],
+    "exclusions": ["传统虚拟化运维", "桌面云销售"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "AI_AGENT_ENGINEER": {
+    "queries": ["智能体", "AI Agent"],
+    "title_aliases": ["AI Agent工程师", "Agent工程师", "智能体应用工程师", "智能体工程师", "Software Engineer, AI Agents", "AI Agents Engineer", "Agent Engineer"],
+    "skill_indicators": ["tool calling", "MCP", "多智能体", "Agent规划", "工具调用", "记忆模块", "agentic systems", "agent memory"],
+    "exclusions": ["客服坐席", "保险代理人"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "LLM_APPLICATION_ENGINEER": {
+    "queries": ["大模型", "LLM"],
+    "title_aliases": ["大模型应用工程师", "LLM应用开发工程师", "LLM应用工程师", "Applied AI Engineer", "LLM Engineer"],
+    "skill_indicators": ["LangChain", "LLM API", "大模型API", "上下文管理", "函数调用", "LLM", "function calling", "context management"],
+    "exclusions": ["仅做向量检索", "仅做提示词标注"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "RAG_ENGINEER": {
+    "queries": ["RAG", "知识库"],
+    "title_aliases": ["RAG工程师", "检索增强生成工程师", "RAG开发工程师", "RAG", "企业知识检索开发", "知识库工程师", "检索应用工程师", "Retrieval Engineer", "Search Engineer"],
+    "skill_indicators": ["向量数据库", "检索召回", "重排序", "embedding", "知识库检索", "语义召回", "文档切片", "结果精排", "向量检索", "召回排序", "retrieval", "vector database", "reranking"],
+    "exclusions": ["传统搜索广告", "纯数据库管理员"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "MLOPS_ENGINEER": {
+    "queries": ["MLOps", "机器学习"],
+    "title_aliases": ["MLOps工程师", "机器学习平台工程师", "模型平台工程师", "Machine Learning Platform Engineer", "ML Infrastructure Engineer", "MLOps Engineer"],
+    "skill_indicators": ["MLflow", "模型部署", "模型监控", "特征库", "训练流水线", "模型注册", "model deployment", "model monitoring", "training pipeline", "feature store"],
+    "exclusions": ["仅业务算法研究", "手工数据标注"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "MULTIMODAL_ENGINEER": {
+    "queries": ["多模态", "视觉算法"],
+    "title_aliases": ["多模态算法工程师", "多模态工程师", "视觉语言模型工程师"],
+    "skill_indicators": ["视觉语言模型", "VLM", "图文理解", "图文对齐", "多模态训练"],
+    "exclusions": ["传统平面设计", "视频剪辑"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "PROMPT_ENGINEER": {
+    "queries": ["提示词", "Prompt"],
+    "title_aliases": ["提示词工程师", "Prompt Engineer", "Prompt工程师"],
+    "skill_indicators": ["prompt engineering", "提示词评测", "system prompt", "few-shot", "提示词设计"],
+    "exclusions": ["数据标注员", "内容审核员"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "AI_SOLUTION_ENGINEER": {
+    "queries": ["AI解决方案", "人工智能"],
+    "title_aliases": ["AI解决方案工程师", "人工智能售前解决方案架构师", "AI解决方案架构师", "Solutions Engineer", "AI Solutions Engineer", "Applied AI Architect"],
+    "skill_indicators": ["客户需求分析", "AI方案设计", "PoC", "售前交流", "方案咨询", "方案交付", "customer requirements", "solution design", "proof of concept"],
+    "exclusions": ["纯软件销售", "电话销售"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "BIG_DATA_DEVELOPER": {
+    "queries": ["大数据", "数据开发"],
+    "title_aliases": ["大数据开发工程师", "大数据平台开发", "大数据工程师", "数据开发工程师"],
+    "skill_indicators": ["Hadoop", "Spark", "Flink", "Hive", "批处理", "大数据技术生态"],
+    "exclusions": ["元数据治理", "主数据管理"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "DATA_GOVERNANCE_ENGINEER": {
+    "queries": ["数据治理", "数据质量"],
+    "title_aliases": ["数据治理工程师", "数据治理专家", "数据治理顾问", "数据资产管理工程师", "数据资产工程师", "数据质量管理工程师"],
+    "skill_indicators": ["元数据", "数据血缘", "数据质量", "数据标准", "主数据", "数据目录", "血缘追踪", "质量稽核", "标准管理", "资产盘点"],
+    "exclusions": ["仅负责ETL开发", "纯报表开发"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "DATA_ENGINEER": {
+    "queries": ["数据工程师", "数据开发"],
+    "title_aliases": ["数据工程师", "数据开发工程师", "数据仓库工程师", "Data Engineer"],
+    "skill_indicators": ["ETL", "数据仓库", "Airflow", "数据管道", "数据集市", "SQL模型", "data pipeline", "data warehouse", "dbt"],
+    "exclusions": ["数据治理", "元数据", "数据血缘", "不承担 ETL"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "IOT_ENGINEER": {
+    "queries": ["物联网", "IoT"],
+    "title_aliases": ["物联网工程师", "IoT开发工程师", "IoT工程师", "物联网"],
+    "skill_indicators": ["MQTT", "传感器", "设备接入", "物联网网关", "设备协议"],
+    "exclusions": ["边缘推理", "云边协同"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "EDGE_COMPUTING_ENGINEER": {
+    "queries": ["边缘计算", "边缘云"],
+    "title_aliases": ["边缘计算工程师", "边缘云工程师", "Edge Computing工程师"],
+    "skill_indicators": ["边缘推理", "边缘网关", "算力调度", "edge computing", "云边协同"],
+    "exclusions": ["仅设备接入", "传统CDN销售"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "CYBERSECURITY_ENGINEER": {
+    "queries": ["网络安全", "信息安全"],
+    "title_aliases": ["网络安全工程师", "信息安全工程师", "安全工程师", "Security Engineer", "Product Security Engineer", "Application Security Engineer"],
+    "skill_indicators": ["渗透测试", "漏洞扫描", "安全加固", "SIEM", "入侵检测", "应急响应", "incident response", "vulnerability management", "threat detection", "penetration testing"],
+    "exclusions": ["安全生产员", "保安"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "DIGITAL_TWIN_ENGINEER": {
+    "queries": ["数字孪生", "仿真平台"],
+    "title_aliases": ["数字孪生工程师", "数字孪生开发工程师", "Digital Twin工程师", "虚实映射平台开发", "虚实融合工程师", "数字镜像工程师"],
+    "skill_indicators": ["三维仿真", "实时映射", "模型同步", "twin model", "仿真平台", "设备镜像", "状态同步", "实时仿真", "虚实同步"],
+    "exclusions": ["双胞胎研究", "普通三维设计"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  },
+  "ROBOTICS_ENGINEER": {
+    "queries": ["机器人", "自动化"],
+    "title_aliases": ["机器人工程师", "机器人算法工程师", "机器人开发工程师", "Robotics Software Engineer", "Robotics Engineer"],
+    "skill_indicators": ["ROS", "SLAM", "运动控制", "路径规划", "机械臂控制", "机器人感知", "motion planning", "robot control"],
+    "exclusions": ["机器人销售", "少儿机器人教师"],
+    "minimum_title_evidence": 1,
+    "minimum_skill_evidence": 1,
+    "confidence": 0.8,
+    "quota": {"target": 300, "batch_size": 100}
+  }
+}

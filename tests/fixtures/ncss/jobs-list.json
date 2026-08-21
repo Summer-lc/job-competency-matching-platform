@@ -1,0 +1,50 @@
+{
+  "fixture": "sanitized",
+  "data": {
+    "list": [
+      {
+        "jobName": "后端开发工程师（脱敏样本）",
+        "highMonthPay": 15000,
+        "lowMonthPay": 10000,
+        "updateDate": "2026-08-05",
+        "headCount": 2,
+        "recruitType": "校园招聘",
+        "publishDate": "2026-08-04",
+        "degreeName": "本科",
+        "recName": "示例科技有限公司",
+        "areaCodeName": "上海市",
+        "jobId": "fixture-job-001",
+        "recScale": "100-499人",
+        "recTags": ["fixture", "sanitized"],
+        "major": "计算机相关专业",
+        "recProperty": "民营企业",
+        "recId": "fixture-rec-001",
+        "industrySectorsName": "软件和信息技术服务业",
+        "fixtureExtraField": "preserved"
+      },
+      {
+        "jobName": "数据平台实习生（脱敏样本）",
+        "highMonthPay": 12000,
+        "lowMonthPay": null,
+        "updateDate": "2026-08-03",
+        "headCount": 1,
+        "recruitType": "实习",
+        "publishDate": null,
+        "degreeName": null,
+        "recName": "示例数据有限公司",
+        "areaCodeName": "北京市",
+        "jobId": "fixture-job-002",
+        "recScale": null,
+        "recTags": ["fixture", "sanitized"],
+        "major": null,
+        "recProperty": "其他",
+        "recId": "fixture-rec-002"
+      }
+    ],
+    "pagenation": {
+      "total": 3,
+      "offset": 0,
+      "limit": 2
+    }
+  }
+}

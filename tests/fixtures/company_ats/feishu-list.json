@@ -1,0 +1,28 @@
+{
+  "code": 0,
+  "data": {
+    "count": 2,
+    "job_post_list": [
+      {
+        "id": "7624476433381869860",
+        "title": "Python后端工程师",
+        "description": "负责Python服务端架构设计、接口开发、性能优化和稳定性建设。",
+        "requirement": "本科及以上学历，熟悉FastAPI、PostgreSQL、Redis、Docker和自动化测试。",
+        "city_list": [{"name": "北京"}],
+        "job_function": {"name": "技术研发"},
+        "recruit_type": {"name": "社会招聘"},
+        "publish_time": 1775212138373
+      },
+      {
+        "id": "7624119064441653510",
+        "title": "大模型应用工程师",
+        "description": "负责大语言模型应用、智能体工作流和检索增强生成系统研发。",
+        "requirement": "熟悉Python、LangChain、向量数据库、RAG评估和模型服务部署。",
+        "city_list": [{"name": "上海"}, {"name": "北京"}],
+        "job_function": {"name": "人工智能"},
+        "recruit_type": {"name": "社会招聘"},
+        "publish_time": 1775128632858
+      }
+    ]
+  }
+}

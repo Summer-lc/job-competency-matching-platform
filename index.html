@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>岗位能力图谱与动态演化分析平台</title>
+    <style>
+        :root {
+            --ink: #152033;
+            --muted: #64748b;
+            --line: #dfe7f1;
+            --paper: #ffffff;
+            --canvas: #f3f7fb;
+            --nav: #0b1f33;
+            --nav-soft: #173550;
+            --blue: #1769e0;
+            --cyan: #0ea5a4;
+            --green: #149c66;
+            --amber: #d97706;
+            --red: #dc4c64;
+            --violet: #6d5ce7;
+            --shadow: 0 18px 45px rgba(42, 73, 111, .10);
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif; color: var(--ink); background: var(--canvas); }
+        button, input, select, textarea { font: inherit; }
+        button { cursor: pointer; }
+        .shell { min-height: 100vh; display: grid; grid-template-columns: 248px 1fr; }
+        aside { background: linear-gradient(180deg, #0a2034 0%, #0c2942 100%); color: #fff; padding: 28px 18px; position: sticky; top: 0; height: 100vh; }
+        .brand { display: flex; gap: 12px; align-items: center; padding: 0 8px 26px; border-bottom: 1px solid rgba(255,255,255,.1); }
+        .brand-mark { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; background: linear-gradient(135deg, #2b7fff, #15b8a6); font-weight: 900; box-shadow: 0 10px 25px rgba(20,184,166,.25); }
+        .brand h1 { font-size: 15px; margin: 0; line-height: 1.35; }
+        .brand p { margin: 3px 0 0; font-size: 10px; color: #9fc2dc; letter-spacing: .08em; }
+        nav { margin-top: 24px; display: grid; gap: 7px; }
+        .nav-btn { width: 100%; padding: 11px 12px; border: 0; border-radius: 11px; color: #b8cada; background: transparent; text-align: left; display: flex; gap: 10px; align-items: center; transition: .2s; }
+        .nav-btn:hover, .nav-btn.active { color: #fff; background: var(--nav-soft); transform: translateX(2px); }
+        .nav-btn.active { box-shadow: inset 3px 0 #2fc7b5; }
+        .aside-foot { position: absolute; left: 26px; right: 26px; bottom: 24px; color: #86a9c2; font-size: 11px; line-height: 1.7; }
+        main { min-width: 0; }
+        header { height: 74px; padding: 0 34px; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,.92); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px); }
+        header h2 { margin: 0; font-size: 18px; }
+        header p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+        .status { display: flex; gap: 8px; align-items: center; color: var(--green); font-size: 12px; background: #eafaf3; padding: 8px 12px; border-radius: 999px; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 4px rgba(20,156,102,.12); }
+        .content { padding: 30px 34px 48px; max-width: 1500px; margin: 0 auto; }
+        .page { display: none; animation: enter .25s ease; }
+        .page.active { display: block; }
+        @keyframes enter { from { opacity: 0; transform: translateY(5px); } }
+        .hero { background: linear-gradient(120deg, #102f4a, #155e75 58%, #0d9488); color: #fff; padding: 30px; border-radius: 22px; box-shadow: var(--shadow); display: grid; grid-template-columns: 1.6fr 1fr; gap: 28px; overflow: hidden; position: relative; }
+        .hero:after { content: ""; position: absolute; width: 300px; height: 300px; border: 1px solid rgba(255,255,255,.16); border-radius: 50%; right: -90px; top: -150px; box-shadow: 0 0 0 45px rgba(255,255,255,.04), 0 0 0 90px rgba(255,255,255,.025); }
+        .hero h3 { margin: 0 0 10px; font-size: 28px; line-height: 1.25; }
+        .hero p { margin: 0; max-width: 760px; color: #d7edf2; line-height: 1.8; }
+        .hero-flow { align-self: center; position: relative; z-index: 1; display: grid; gap: 8px; }
+        .hero-flow span { padding: 9px 12px; border: 1px solid rgba(255,255,255,.18); border-radius: 10px; background: rgba(255,255,255,.08); font-size: 12px; }
+        .grid { display: grid; gap: 18px; }
+        .stats { grid-template-columns: repeat(6, minmax(0,1fr)); margin: 22px 0; }
+        .stat, .card { background: var(--paper); border: 1px solid var(--line); border-radius: 17px; box-shadow: 0 8px 24px rgba(42,73,111,.05); }
+        .stat { padding: 18px; }
+        .stat .label { color: var(--muted); font-size: 11px; }
+        .stat strong { display: block; font-size: 27px; margin: 8px 0 3px; letter-spacing: -.03em; }
+        .stat small { color: #8da0b6; font-size: 10px; }
+        .card { padding: 22px; }
+        .card h3 { margin: 0 0 5px; font-size: 16px; }
+        .card-sub { margin: 0 0 18px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+        .section-title { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 18px; gap: 20px; }
+        .section-title h3 { margin: 0; font-size: 22px; }
+        .section-title p { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+        .two { grid-template-columns: repeat(2, minmax(0,1fr)); }
+        .three { grid-template-columns: repeat(3, minmax(0,1fr)); }
+        .workflow { grid-template-columns: repeat(6, minmax(0,1fr)); }
+        .flow-step { padding: 18px 15px; text-align: center; background: #fff; border: 1px solid var(--line); border-radius: 15px; position: relative; }
+        .flow-step:not(:last-child):after { content: "›"; position: absolute; right: -13px; top: 32%; font-size: 26px; color: #99aabd; z-index: 2; }
+        .flow-num { width: 30px; height: 30px; display: grid; place-items: center; margin: 0 auto 10px; border-radius: 9px; background: #e8f2ff; color: var(--blue); font-weight: 800; }
+        .flow-step b { font-size: 12px; }
+        .flow-step p { margin: 6px 0 0; font-size: 10px; color: var(--muted); }
+        .upload { border: 1.5px dashed #a9bed4; border-radius: 14px; padding: 24px; background: #f8fbff; text-align: center; }
+        .upload input { width: 100%; margin: 14px 0; color: var(--muted); }
+        .btn { border: 0; border-radius: 10px; padding: 10px 15px; color: #fff; background: var(--blue); font-weight: 700; font-size: 12px; box-shadow: 0 8px 18px rgba(23,105,224,.18); }
+        .btn:hover { filter: brightness(.96); transform: translateY(-1px); }
+        .btn.secondary { color: #28506e; background: #e9f1f8; box-shadow: none; }
+        .btn.green { background: var(--green); }
+        .btn.red { background: var(--red); }
+        .btn.small { padding: 7px 10px; font-size: 11px; }
+        .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        select, input[type="text"], input[type="number"] { border: 1px solid #cfdbe8; border-radius: 9px; padding: 9px 11px; background: #fff; color: var(--ink); min-width: 180px; }
+        .message { margin-top: 12px; min-height: 18px; color: var(--muted); font-size: 12px; white-space: pre-wrap; }
+        .table-wrap { overflow: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { text-align: left; padding: 11px 10px; color: #6d8299; font-weight: 700; background: #f7f9fc; border-bottom: 1px solid var(--line); }
+        td { padding: 12px 10px; border-bottom: 1px solid #edf1f6; vertical-align: top; }
+        .badge { display: inline-flex; padding: 4px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; }
+        .badge.green { color: #087d50; background: #e7f8f0; }
+        .badge.amber { color: #a65300; background: #fff3dc; }
+        .badge.blue { color: #1558b0; background: #e9f2ff; }
+        .badge.red { color: #ad2a43; background: #ffe9ed; }
+        .job-card { display: flex; flex-direction: column; gap: 12px; }
+        .job-head { display: flex; justify-content: space-between; gap: 10px; }
+        .job-head h4 { margin: 0; font-size: 15px; }
+        .meter { height: 7px; border-radius: 20px; background: #edf2f7; overflow: hidden; }
+        .meter span { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+        .skill-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .skill-chip { padding: 5px 8px; border-radius: 7px; background: #f0f5fa; color: #37516a; font-size: 10px; }
+        .changes { grid-template-columns: repeat(3, minmax(0,1fr)); }
+        .change-box { border-radius: 15px; padding: 18px; border: 1px solid var(--line); min-height: 170px; }
+        .change-box.add { background: #f0fbf6; }
+        .change-box.remove { background: #fff4f5; }
+        .change-box.modify { background: #fff9ee; }
+        .change-box h4 { margin: 0 0 12px; }
+        .change-item { padding: 8px 0; border-top: 1px solid rgba(100,116,139,.14); font-size: 11px; display: flex; justify-content: space-between; }
+        #graph-canvas { width: 100%; height: 580px; border: 1px solid var(--line); border-radius: 15px; background: radial-gradient(circle at 50% 50%, #fff, #f4f8fc); }
+        .resume-summary { padding: 16px; border-radius: 13px; background: #f7fafc; min-height: 120px; }
+        .score-ring { width: 145px; height: 145px; border-radius: 50%; display: grid; place-items: center; margin: auto; background: conic-gradient(var(--cyan) calc(var(--score) * 1%), #e7edf4 0); position: relative; }
+        .score-ring:after { content: ""; position: absolute; inset: 13px; border-radius: 50%; background: #fff; }
+        .score-ring strong { z-index: 1; font-size: 31px; }
+        .dimensions { display: grid; gap: 9px; }
+        .dimension { display: grid; grid-template-columns: 140px 1fr 55px; align-items: center; gap: 10px; font-size: 11px; }
+        .bar { height: 8px; background: #edf2f7; border-radius: 9px; overflow: hidden; }
+        .bar span { display: block; height: 100%; background: var(--blue); }
+        .recommendation-grid { display: grid; grid-template-columns: repeat(5,minmax(210px,1fr)); gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+        .recommendation-card { min-width: 210px; border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: linear-gradient(155deg,#fff,#f7fbff); }
+        .recommendation-rank { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+        .recommendation-card h4 { margin: 0 0 7px; font-size: 14px; }
+        .recommendation-score { font-size: 25px; font-weight: 800; color: var(--blue); }
+        .phase-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+        .phase-card { border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: #f9fbfd; }
+        .phase-card h4 { margin: 0 0 10px; }
+        .learning-node { border-top: 1px solid var(--line); padding: 10px 0; font-size: 11px; line-height: 1.65; }
+        .learning-node:first-of-type { border-top: 0; }
+        .match-evidence-item { padding: 12px 0; border-top: 1px solid var(--line); font-size: 11px; line-height: 1.7; }
+        .match-evidence-item:first-child { border-top: 0; }
+        .empty { padding: 40px 16px; text-align: center; color: #91a1b4; font-size: 12px; }
+        .review-row { padding: 16px; border: 1px solid var(--line); border-radius: 13px; display: flex; align-items: center; gap: 16px; justify-content: space-between; margin-bottom: 10px; }
+        .review-row h4 { margin: 0 0 5px; }
+        .review-row p { margin: 0; color: var(--muted); font-size: 11px; }
+        .review-actions { display: flex; gap: 7px; }
+        .readiness-list { display: grid; gap: 8px; }
+        .readiness-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #edf1f6; font-size: 12px; }
+        .readiness-item:last-child { border-bottom: 0; }
+        .knowledge-question { width: 100%; min-height: 120px; resize: vertical; border: 1px solid #cfdbe8; border-radius: 12px; padding: 13px 14px; color: var(--ink); line-height: 1.7; background: #fff; }
+        .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+        .suggestion { border: 1px solid #cfe0f2; border-radius: 999px; padding: 7px 11px; color: #28506e; background: #f5f9fd; font-size: 11px; }
+        .suggestion:hover { color: var(--blue); border-color: #9ec4f2; }
+        .answer-box { min-height: 250px; background: linear-gradient(145deg, #f8fbff, #f3fbf9); }
+        .answer-head, .evidence-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .answer-content { margin-top: 16px; line-height: 1.9; white-space: pre-wrap; font-size: 13px; }
+        .knowledge-warning { margin-top: 14px; padding: 10px 12px; border-radius: 10px; background: #fff3dc; color: #9a5500; font-size: 11px; }
+        .evidence-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+        .evidence-card { border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: #fff; }
+        .evidence-card h4 { margin: 10px 0 4px; font-size: 14px; }
+        .evidence-meta { color: var(--muted); font-size: 10px; }
+        .evidence-text { margin: 12px 0; color: #40566c; font-size: 11px; line-height: 1.75; max-height: 132px; overflow: auto; white-space: pre-wrap; }
+        .evidence-link { color: var(--blue); font-size: 11px; text-decoration: none; font-weight: 700; }
+        @media (max-width: 1120px) { .stats { grid-template-columns: repeat(3,1fr); } .workflow { grid-template-columns: repeat(3,1fr); } .hero { grid-template-columns: 1fr; } }
+        @media (max-width: 1120px) { .recommendation-grid { grid-template-columns: repeat(3,minmax(210px,1fr)); } }
+        @media (max-width: 760px) { .shell { grid-template-columns: 1fr; } aside { position: static; height: auto; } .aside-foot { display: none; } nav { grid-template-columns: repeat(2,1fr); } header { padding: 0 18px; } .content { padding: 22px 18px; } .stats, .two, .three, .changes, .evidence-grid, .phase-grid { grid-template-columns: 1fr; } .workflow { grid-template-columns: repeat(2,1fr); } .recommendation-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <aside>
+        <div class="brand">
+            <div class="brand-mark">KG</div>
+            <div><h1>岗位能力图谱平台</h1><p>多源岗位智能分析</p></div>
+        </div>
+        <nav>
+            <button class="nav-btn active" data-target="dashboard">系统总览</button>
+            <button class="nav-btn" data-target="governance">数据治理</button>
+            <button class="nav-btn" data-target="discovery">岗位发现</button>
+            <button class="nav-btn" data-target="evolution">能力演化</button>
+            <button class="nav-btn" data-target="graph">全景图谱</button>
+            <button class="nav-btn" data-target="knowledge">知识问答</button>
+            <button class="nav-btn" data-target="matching">人岗匹配</button>
+            <button class="nav-btn" data-target="reviews">人工审核</button>
+            <button class="nav-btn" data-target="evaluation">模型质量评测</button>
+        </nav>
+    </aside>
+    <main>
+        <header>
+            <div><h2 id="page-title">系统总览</h2><p id="page-subtitle">从岗位数据到能力诊断的全流程闭环</p></div>
+            <div class="status"><span class="dot"></span><span id="service-status">服务正常</span></div>
+        </header>
+        <div class="content">
+            <section class="page active" id="dashboard">
+                <div class="hero">
+                    <div><h3>让岗位能力要求有来源、可解释、会演化</h3><p>融合招聘 JD、职业标准和技术趋势证据，识别新岗位与技能变化，并将简历能力映射到技能级岗位图谱。</p></div>
+                    <div class="hero-flow"><span>证据追溯与数据去重</span><span>低置信结论进入人工审核</span><span>匹配结果拆解到技能点</span></div>
+                </div>
+                <div class="grid stats" id="dashboard-stats"></div>
+                <div class="section-title"><div><h3>核心业务闭环</h3><p>六个环节相互衔接，覆盖从数据导入到匹配诊断的完整流程</p></div></div>
+                <div class="grid workflow">
+                    <div class="flow-step"><div class="flow-num">1</div><b>多源导入</b><p>JSONL / CSV</p></div>
+                    <div class="flow-step"><div class="flow-num">2</div><b>可信治理</b><p>时效、噪声、抄袭</p></div>
+                    <div class="flow-step"><div class="flow-num">3</div><b>岗位演化</b><p>新增、删除、修改</p></div>
+                    <div class="flow-step"><div class="flow-num">4</div><b>技能图谱</b><p>技术栈与级别</p></div>
+                    <div class="flow-step"><div class="flow-num">5</div><b>简历解析</b><p>PDF / Word</p></div>
+                    <div class="flow-step"><div class="flow-num">6</div><b>匹配诊断</b><p>差距与学习路径</p></div>
+                </div>
+            </section>
+
+            <section class="page" id="governance">
+                <div class="section-title"><div><h3>多源数据治理</h3><p>导入岗位 JD 与外部证据，自动完成格式校验、标准化和重复标记</p></div><button class="btn secondary" onclick="loadGovernance()">刷新统计</button></div>
+                <div class="grid two">
+                    <div class="card"><h3>导入岗位数据</h3><p class="card-sub">支持 JSONL、JSON、CSV，每条数据必须包含来源链接和完整 JD。</p><div class="upload"><b>选择岗位数据文件</b><input type="file" id="job-file" accept=".jsonl,.json,.csv"><button class="btn" onclick="uploadFile('job')">开始导入</button></div><div class="message" id="job-upload-message"></div></div>
+                    <div class="card"><h3>导入验证证据</h3><p class="card-sub">导入职业标准、官方技术文档和行业趋势资料，支持交叉验证。</p><div class="upload"><b>选择证据数据文件</b><input type="file" id="evidence-file" accept=".jsonl,.json,.csv"><button class="btn green" onclick="uploadFile('evidence')">开始导入</button></div><div class="message" id="evidence-upload-message"></div></div>
+                </div>
+                <div class="card" style="margin-top:18px"><h3>数据质量摘要</h3><p class="card-sub">有效数据、重复率、来源覆盖与平均质量分</p><div class="grid stats" id="governance-stats"></div></div>
+                <div class="grid two" style="margin-top:18px">
+                    <div class="card"><div class="section-title"><div><h3>数据质量处理</h3><p>按统一标准重新校验日期、来源、重复和岗位层级</p></div><button class="btn" id="hard-metrics-run" onclick="runHardMetrics()">运行增量更新</button></div><div class="grid stats" id="quality-gate-stats"><div class="empty">尚未运行质量检查</div></div></div>
+                    <div class="card"><h3>处理记录</h3><p class="card-sub">每次更新均保留处理版本、处理数量和完成状态</p><div id="hard-metrics-history" class="readiness-list"><div class="empty">暂无处理记录</div></div></div>
+                </div>
+                <div class="grid two" style="margin-top:18px">
+                    <div class="card"><h3>导入批次</h3><p class="card-sub">每批数据均保留文件指纹、处理统计和受影响岗位族</p><div class="table-wrap"><table><thead><tr><th>文件</th><th>有效/原始</th><th>隔离</th><th>状态</th></tr></thead><tbody id="batch-list"><tr><td colspan="4" class="empty">暂无导入批次</td></tr></tbody></table></div></div>
+                    <div class="card"><h3>异常隔离</h3><p class="card-sub">错误行不会进入正式图谱，可根据原因修复后重新导入</p><div class="table-wrap"><table><thead><tr><th>行号</th><th>原因</th><th>原始内容</th></tr></thead><tbody id="quarantine-list"><tr><td colspan="3" class="empty">暂无隔离数据</td></tr></tbody></table></div></div>
+                </div>
+            </section>
+
+            <section class="page" id="discovery">
+                <div class="section-title"><div><h3>新岗位发现与定义</h3><p>结合增长率、跨来源覆盖、持续性与技能组合新颖度生成候选岗位</p></div><button class="btn" onclick="rebuildAnalysis()">重新分析岗位</button></div>
+                <div class="grid three" id="emerging-list"><div class="empty">尚未生成候选新岗位</div></div>
+            </section>
+
+            <section class="page" id="evolution">
+                <div class="section-title"><div><h3>既有岗位能力动态更新</h3><p>对比历史与当前时间窗口，明确标注能力项新增、删除和显著变化</p></div><div class="toolbar"><select id="evolution-job" onchange="loadEvolutionFilters()"></select><select id="evolution-level"><option value="">全部层级</option><option value="junior">初级</option><option value="mid">中级</option><option value="senior">高级</option><option value="expert">专家</option></select><select id="evolution-quarter"><option value="">最新相邻季度</option></select><button class="btn" onclick="loadEvolution()">生成对比</button></div></div>
+                <div class="grid changes">
+                    <div class="change-box add"><h4>新增技能</h4><div id="change-added" class="empty">请选择岗位</div></div>
+                    <div class="change-box remove"><h4>删除技能</h4><div id="change-removed" class="empty">请选择岗位</div></div>
+                    <div class="change-box modify"><h4>需求变化</h4><div id="change-modified" class="empty">请选择岗位</div></div>
+                </div>
+                <div class="card" style="margin-top:18px"><h3>数据来源</h3><p class="card-sub">所有变化均可回溯至原始岗位页面</p><div id="evolution-sources" class="skill-list"></div></div>
+            </section>
+
+            <section class="page" id="graph">
+                <div class="section-title"><div><h3>新一代信息技术岗位全景图谱</h3><p>岗位、技能、职责、场景与来源证据的版本化关系网络</p></div><div class="toolbar"><select id="graph-family" onchange="loadGraphVersions()"><option value="">全部岗位族</option></select><select id="graph-version"><option value="">画像版本：最新</option></select><select id="graph-node-type"><option value="">节点类型：全部</option><option value="skill">技能</option><option value="responsibility">职责</option><option value="scenario">行业场景</option><option value="evidence">证据</option></select><select id="graph-scope"><option value="draft">草稿图谱</option><option value="published">已发布图谱</option></select><select id="graph-stack"><option value="">全部技术栈</option><option value="artificial_intelligence">人工智能</option><option value="big_data">大数据</option><option value="cloud_native">云原生</option><option value="software">软件开发</option><option value="iot">物联网</option><option value="security">网络安全</option><option value="intelligent_system">智能系统</option></select><select id="graph-level"><option value="">全部级别</option><option value="junior">初级</option><option value="mid">中级</option><option value="senior">高级</option><option value="expert">专家</option></select><label class="badge blue"><input type="checkbox" id="graph-evidence"> 显示证据</label><button class="btn" onclick="loadGraph()">刷新图谱</button></div></div>
+                <div class="card"><svg id="graph-canvas" viewBox="0 0 1000 580"></svg></div>
+                <div class="card" id="graph-detail" style="margin-top:14px"><h3>节点详情</h3><p class="card-sub">点击图谱节点查看画像版本、审核状态与来源证据</p></div>
+            </section>
+
+            <section class="page" id="knowledge">
+                <div class="section-title"><div><h3>岗位知识检索与证据问答</h3><p>先检索真实 JD 与外部标准证据，再生成每条结论均可追溯的回答</p></div></div>
+                <div class="grid two">
+                    <div class="card">
+                        <h3>提出岗位能力问题</h3>
+                        <p class="card-sub">选择岗位族可以缩小证据范围；不选择时将在全部岗位知识中检索。</p>
+                        <textarea class="knowledge-question" id="knowledge-question" placeholder="例如：数据工程师需要掌握哪些实时计算技能？"></textarea>
+                        <div class="suggestions">
+                            <button class="suggestion" onclick="askRecommendedQuestion('数据工程师需要掌握哪些实时计算技能？')">实时计算技能</button>
+                            <button class="suggestion" onclick="askRecommendedQuestion('网络安全工程师的核心职责是什么？')">安全岗位职责</button>
+                            <button class="suggestion" onclick="askRecommendedQuestion('物联网工程师常见的技术栈有哪些？')">物联网技术栈</button>
+                        </div>
+                        <div class="toolbar">
+                            <select id="knowledge-family"><option value="">全部岗位族</option></select>
+                            <select id="knowledge-limit"><option value="3">3条证据</option><option value="6" selected>6条证据</option><option value="9">9条证据</option><option value="12">12条证据</option></select>
+                            <button class="btn secondary" onclick="searchKnowledgeEvidence()">仅检索证据</button>
+                            <button class="btn green" id="knowledge-answer-button" onclick="answerKnowledgeQuestion()">生成证据回答</button>
+                        </div>
+                        <div class="message" id="knowledge-message"></div>
+                    </div>
+                    <div class="card answer-box" id="knowledge-answer">
+                        <div class="answer-head"><h3>证据回答</h3><span class="badge blue">等待提问</span></div>
+                        <p class="card-sub">回答中的 [K1]、[K2] 与下方证据卡片一一对应。</p>
+                        <div class="answer-content">输入问题后，可先查看原始证据，也可以生成受证据约束的智能回答。</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:18px">
+                    <div class="section-title"><div><h3>来源证据</h3><p>外部标准证据优先展示；JD 证据保留岗位、企业、审核状态和原始链接</p></div></div>
+                    <div class="evidence-grid" id="knowledge-evidence"><div class="empty">尚未检索证据</div></div>
+                </div>
+            </section>
+
+            <section class="page" id="matching">
+                <div class="section-title"><div><h3>人岗匹配度诊断</h3><p>解析简历技能证据，对比目标岗位并生成差距分析与学习路径</p></div></div>
+                <div class="grid two">
+                    <div class="card"><h3>简历能力档案</h3><p class="card-sub">支持 PDF、DOCX、TXT、Markdown，解析技能、工作时间线和项目证据</p><div class="upload"><input type="file" id="resume-file" accept=".pdf,.docx,.txt,.md"><button class="btn" onclick="parseResume()">解析简历</button></div><label class="check-row"><input type="checkbox" id="resume-model-enrichment"> 启用模型增强（简历文本将发送至已配置的模型服务）</label><div class="resume-summary" id="resume-summary">尚未上传简历</div></div>
+                    <div class="card"><h3>目标岗位深度诊断</h3><p class="card-sub">从推荐结果选择岗位，也可以手动选择；结果由七个证据维度组成</p><select id="match-job" style="width:100%;margin-bottom:14px"></select><button class="btn green" onclick="runMatch()">开始匹配诊断</button><div class="message" id="match-message"></div></div>
+                </div>
+                <div class="card" style="margin-top:18px"><div class="section-title"><div><h3>Top 5 岗位推荐</h3><p>按岗位族去重，综合技能、经验、项目证据、时效和职责场景稳定排序</p></div></div><div id="job-recommendations"><div class="empty">解析简历后自动生成推荐</div></div></div>
+                <div class="card" id="match-result" style="margin-top:18px;display:none"></div>
+            </section>
+
+            <section class="page" id="reviews">
+                <div class="section-title"><div><h3>人工审核与幻觉防控</h3><p>候选新岗位和低置信结论必须通过审核后进入正式图谱</p></div><button class="btn secondary" onclick="loadReviews()">刷新队列</button></div>
+                <div id="review-list"><div class="empty">暂无待审核内容</div></div>
+            </section>
+
+            <section class="page" id="evaluation">
+                <div class="section-title"><div><h3>模型质量评测</h3><p>使用人工标注数据，客观验证 JD 解析、简历提取、单岗位匹配与岗位推荐质量</p></div><button class="btn secondary" onclick="loadEvaluation()">刷新指标</button></div>
+                <div class="grid two">
+                    <div class="card"><h3>运行自动评测</h3><p class="card-sub">上传经过人工标注的 JSONL/JSON 测试集，系统自动执行四类任务并保存指标，不能手工填写准确率。</p><div class="upload"><b>选择评测标注文件</b><input type="file" id="evaluation-file" accept=".jsonl,.json"><button class="btn" id="evaluation-run-button" onclick="runEvaluation()">运行自动评测</button></div><div class="message" id="evaluation-message"></div></div>
+                    <div class="card"><h3>质量评测状态</h3><p class="card-sub">系统根据标注数据规模、指标完整性和实测结果自动判断当前质量状态。</p><div class="readiness-list" id="evaluation-readiness"><div class="empty">尚未运行评测</div></div></div>
+                </div>
+                <div class="grid stats" id="evaluation-targets"></div>
+                <div class="grid two" style="margin-bottom:18px" id="system-acceptance"><div class="card"><h3>系统质量状态</h3><div class="empty">尚未测量</div></div><div class="card"><h3>数据健康</h3><div class="empty">正在读取可用岗位</div></div><div class="card"><h3>来源结构</h3><div class="empty">正在读取来源域名</div></div><div class="card"><h3>岗位族覆盖</h3><div class="empty">正在读取可信时间与可用于趋势分析的数据</div></div><div class="card"><h3>最近采集</h3><div class="empty">暂无采集记录</div></div></div>
+                <div class="card"><h3>评测记录</h3><p class="card-sub">以下数值均由上传标注集自动计算并保留失败案例，不展示自报指标。</p><div class="table-wrap"><table><thead><tr><th>指标</th><th>数据集</th><th>样本量</th><th>Precision</th><th>Recall</th><th>F1</th><th>Accuracy</th><th>扩展指标</th></tr></thead><tbody id="evaluation-runs"></tbody></table></div></div>
+            </section>
+        </div>
+    </main>
+</div>
+<script>
+    const API = '';
+    const titles = {
+        dashboard: ['系统总览','从岗位数据到能力诊断的全流程闭环'], governance: ['数据治理','多源数据校验、去重与可信融合'],
+        discovery: ['岗位发现','发现尚未标准化或快速兴起的新岗位'], evolution: ['能力演化','追踪既有岗位能力要求变化'],
+        graph: ['全景图谱','技能点级岗位能力关系网络'], knowledge: ['知识问答','检索真实证据并生成可追溯回答'], matching: ['人岗匹配','简历解析、差距诊断与学习路径'],
+        reviews: ['人工审核','证据不足不生成，低置信结果需审核'], evaluation: ['模型质量评测','使用人工标注集量化验证核心能力']
+    };
+    let profiles = [];
+    let resumeId = null;
+
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchPage(btn.dataset.target)));
+    async function request(path, options={}) {
+        const response = await fetch(API + path, options);
+        if (!response.ok) { let detail = await response.text(); try { detail = JSON.parse(detail).detail; } catch (_) {} throw new Error(detail || `请求失败 ${response.status}`); }
+        return response.json();
+    }
+    function switchPage(name) {
+        window.scrollTo({top: 0, behavior: 'auto'});
+        document.querySelectorAll('.page').forEach(el => el.classList.toggle('active', el.id === name));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active', el.dataset.target === name));
+        document.getElementById('page-title').textContent = titles[name][0];
+        document.getElementById('page-subtitle').textContent = titles[name][1];
+        ({dashboard: refreshStats, governance: loadGovernance, discovery: loadEmerging, evolution: loadProfiles, graph: loadGraph, knowledge: loadProfiles, matching: loadProfiles, reviews: loadReviews, evaluation: async()=>{await loadEvaluation();await loadAcceptance();}}[name] || (()=>{}))();
+    }
+    function statCards(items) { return items.map(x => `<div class="stat"><span class="label">${x.label}</span><strong>${x.value}</strong><small>${x.note || ''}</small></div>`).join(''); }
+    function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char])); }
+    function safeExternalUrl(value) { try { const url=new URL(value); return ['http:','https:'].includes(url.protocol)?url.href:''; } catch (_) { return ''; } }
+    async function refreshStats() {
+        try {
+            const s = await request('/api/data/stats');
+            const common = [
+                {label:'岗位 JD',value:s.job_postings,note:`有效 ${s.valid_postings}`},{label:'数据来源',value:s.sources,note:'跨来源验证'},
+                {label:'标准技能',value:s.skills,note:'技能点粒度'},{label:'岗位画像',value:s.job_profiles,note:'动态版本'},
+                {label:'重复率',value:(s.duplicate_rate*100).toFixed(1)+'%',note:'抄袭与转载识别'},{label:'待审核',value:s.pending_reviews,note:'幻觉防控'}
+            ];
+            document.getElementById('dashboard-stats').innerHTML = statCards(common);
+            document.getElementById('governance-stats').innerHTML = statCards([
+                ...common.slice(0,3), {label:'证据记录',value:s.evidence_records,note:'标准与趋势资料'},
+                {label:'平均质量分',value:(s.average_quality_score*100).toFixed(1),note:'满分100'}, {label:'重复记录',value:s.duplicates,note:'保留溯源标记'}
+            ]);
+        } catch(e) { document.getElementById('service-status').textContent = '服务异常'; }
+    }
+    async function uploadFile(kind) {
+        const input = document.getElementById(kind === 'job' ? 'job-file' : 'evidence-file');
+        const message = document.getElementById(kind === 'job' ? 'job-upload-message' : 'evidence-upload-message');
+        if (!input.files[0]) { message.textContent = '请先选择文件'; return; }
+        const form = new FormData(); form.append('file', input.files[0]); message.textContent = '正在导入并校验...';
+        try { const r = await request(kind === 'job' ? '/api/data/import' : '/api/data/evidence/import',{method:'POST',body:form}); message.textContent = `导入完成：成功 ${r.imported}，修订 ${r.revised || 0}，隔离 ${r.quarantined || 0}`; await loadGovernance(); await loadProfiles(true); }
+        catch(e) { message.textContent = '导入失败：' + e.message; }
+    }
+    async function loadGovernance(){
+        await refreshStats();
+        try {
+            const [batches,quarantine,quality,runs]=await Promise.all([request('/api/data/import-batches'),request('/api/data/quarantine'),request('/api/hard-metrics/quality'),request('/api/hard-metrics/runs')]);
+            document.getElementById('batch-list').innerHTML=batches.items.length?batches.items.map(x=>`<tr><td>${x.filename}<br><small>${x.affected_families.join('、')||'无岗位族'}</small></td><td>${x.imported+x.revised}/${x.raw_lines}</td><td>${x.quarantined}</td><td><span class="badge ${x.status==='completed'?'green':'amber'}">${x.status}</span></td></tr>`).join(''):'<tr><td colspan="4" class="empty">暂无导入批次</td></tr>';
+            document.getElementById('quarantine-list').innerHTML=quarantine.items.length?quarantine.items.map(x=>`<tr><td>${x.line_number}</td><td><span class="badge red">${x.error_code||'invalid'}</span><br><small>${x.error_message||''}</small></td><td title="${x.raw_text}">${x.raw_text.slice(0,70)}</td></tr>`).join(''):'<tr><td colspan="3" class="empty">暂无隔离数据</td></tr>';
+            const gate=quality.gate_status||{},levels=quality.machine_levels||{};document.getElementById('quality-gate-stats').innerHTML=statCards([{label:'通过门禁',value:gate.valid||0,note:'参与季度画像'},{label:'待复核',value:gate.review||0,note:'暂不进入画像'},{label:'隔离',value:gate.quarantined||0,note:'关键字段异常'},{label:'重复',value:gate.duplicate||0,note:'保留来源关系'},{label:'已识别层级',value:Object.entries(levels).filter(([k])=>!['unspecified','all'].includes(k)).reduce((n,[,v])=>n+v,0),note:'初级至专家'}]);
+            document.getElementById('hard-metrics-history').innerHTML=runs.items.length?runs.items.map(x=>`<div class="readiness-item"><span>${x.mode==='full'?'全量重算':'增量更新'}<br><small>${x.started_at}</small></span><span class="badge ${x.status==='completed'?'green':'amber'}">${x.status}</span></div>`).join(''):'<div class="empty">暂无处理记录</div>';
+        } catch(e) { document.getElementById('batch-list').innerHTML=`<tr><td colspan="4" class="empty">${e.message}</td></tr>`; }
+    }
+    async function runHardMetrics(){const button=document.getElementById('hard-metrics-run');button.disabled=true;button.textContent='正在更新...';try{await request('/api/hard-metrics/rebuild',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'incremental'})});await loadGovernance();await loadProfiles(true);}catch(e){alert(e.message);}finally{button.disabled=false;button.textContent='运行增量更新';}}
+    async function rebuildAnalysis() {
+        const list = document.getElementById('emerging-list'); list.innerHTML = '<div class="empty">正在聚合时间窗口和跨来源证据...</div>';
+        try { const r = await request('/api/analysis/rebuild',{method:'POST'}); await loadProfiles(true); await loadEmerging(); alert(`分析完成：生成 ${r.profiles_created} 个岗位画像，${r.review_items_created} 个待审核项`); }
+        catch(e) { list.innerHTML = `<div class="empty">${e.message}</div>`; }
+    }
+    async function loadProfiles(force=false) {
+        if (!profiles.length || force) profiles = (await request('/api/jobs')).items;
+        const options = profiles.map(p => `<option value="${p.family_code}" data-id="${p.id}">${p.name} · v${p.version}</option>`).join('');
+        document.getElementById('evolution-job').innerHTML = '<option value="">选择岗位</option>' + options;
+        document.getElementById('match-job').innerHTML = '<option value="">选择目标岗位</option>' + options;
+        document.getElementById('graph-family').innerHTML = '<option value="">全部岗位族</option>' + options;
+        document.getElementById('knowledge-family').innerHTML = '<option value="">全部岗位族</option>' + options;
+    }
+    async function loadEvolutionFilters(){const family=document.getElementById('evolution-job').value,level=document.getElementById('evolution-level'),quarter=document.getElementById('evolution-quarter');quarter.innerHTML='<option value="">最新相邻季度</option>';if(!family)return;try{const r=await request('/api/analysis/quarterly-profiles?family_code='+encodeURIComponent(family));const levels=[...new Set(r.items.map(x=>x.level))],periods=[...new Set(r.items.map(x=>x.period_key).filter(Boolean))].sort().reverse();level.innerHTML='<option value="">全部层级</option>'+levels.map(x=>`<option value="${x}">${({junior:'初级',mid:'中级',senior:'高级',expert:'专家',unspecified:'未判定'})[x]||x}</option>`).join('');quarter.innerHTML='<option value="">最新相邻季度</option>'+periods.map(x=>`<option value="${x}">${x}</option>`).join('');}catch(e){quarter.innerHTML='<option value="">季度加载失败</option>';}}
+    async function loadEmerging() {
+        const box = document.getElementById('emerging-list');
+        try { const r = await request('/api/analysis/emerging'); box.innerHTML = r.items.length ? r.items.map(p => `<div class="card job-card"><div class="job-head"><h4>${p.name}</h4><span class="badge amber">候选新岗位</span></div><p class="card-sub">${p.description}</p><div><small>可信度 ${(p.confidence*100).toFixed(1)}%</small><div class="meter"><span style="width:${p.confidence*100}%"></span></div></div><div class="skill-list">${p.required_skills.slice(0,8).map(s=>`<span class="skill-chip">${s}</span>`).join('')}</div><span class="badge ${p.review_status==='approved'?'green':'amber'}">${p.review_status==='approved'?'已审核':'待审核'}</span></div>`).join('') : '<div class="empty">暂无候选岗位，请先导入数据并重新分析</div>'; }
+        catch(e) { box.innerHTML = `<div class="empty">${e.message}</div>`; }
+    }
+    function renderChanges(id, items) { document.getElementById(id).innerHTML = items.length ? items.map(x=>`<div class="change-item"><b>${x.skill}</b><span>${(x.baseline_prevalence*100).toFixed(0)}% → ${(x.current_prevalence*100).toFixed(0)}%</span></div>`).join('') : '<div class="empty">无显著变化</div>'; }
+    async function loadEvolution() {
+        const family = document.getElementById('evolution-job').value; if(!family) return;
+        const q=new URLSearchParams(),level=document.getElementById('evolution-level').value,period=document.getElementById('evolution-quarter').value;if(level)q.set('level',level);if(period)q.set('current_period',period);
+        try { const r = await request('/api/analysis/evolution/'+encodeURIComponent(family)+(q.toString()?'?'+q:'')); renderChanges('change-added',r.added); renderChanges('change-removed',r.removed); renderChanges('change-modified',r.changed); document.getElementById('evolution-sources').innerHTML = r.sources.slice(0,12).map((s,i)=>`<a class="skill-chip" href="${s}" target="_blank" rel="noopener noreferrer">来源 ${i+1}</a>`).join('')||'<span class="empty">当前筛选条件下没有正式季度变化证据</span>'; }
+        catch(e) { alert(e.message); }
+    }
+    async function loadGraphVersions(){const family=document.getElementById('graph-family').value,box=document.getElementById('graph-version');box.innerHTML='<option value="">画像版本：最新</option>';if(!family)return;try{const r=await request('/api/graph/versions/'+encodeURIComponent(family));box.innerHTML+=[...r.items].map(x=>`<option value="${x.version}">画像版本 v${x.version}</option>`).join('');}catch(e){box.innerHTML='<option value="">版本加载失败</option>';}}
+    async function loadGraph() {
+        const q=new URLSearchParams(), values={tech_stack:'graph-stack',level:'graph-level',family_code:'graph-family',version:'graph-version',scope:'graph-scope'};
+        Object.entries(values).forEach(([key,id])=>{const value=document.getElementById(id).value;if(value)q.set(key,value)});if(document.getElementById('graph-evidence').checked)q.set('include_evidence','true');
+        try { renderGraph(await request('/api/graph?'+q)); } catch(e) { document.getElementById('graph-canvas').innerHTML=`<text x="500" y="290" text-anchor="middle" fill="#94a3b8">${e.message}</text>`; }
+    }
+    function renderGraph(data) {
+        const svg=document.getElementById('graph-canvas'),filter=document.getElementById('graph-node-type').value;if(!data.nodes.length){svg.innerHTML='<text x="500" y="290" text-anchor="middle" fill="#94a3b8">暂无图谱，请先导入岗位数据</text>';return;}
+        const limits={family:12,job:20,skill:35,responsibility:18,scenario:12,evidence:20},order=['family','job','skill','responsibility','scenario','evidence'];let selected=data.nodes.filter(n=>!filter||['family','job',filter].includes(n.type));selected=order.flatMap(type=>selected.filter(n=>n.type===type).slice(0,limits[type]));const visible=new Set(selected.map(n=>n.id)),pos={},columns={family:70,job:220,skill:410,responsibility:610,scenario:790,evidence:930};
+        order.forEach(type=>{const items=selected.filter(n=>n.type===type);items.forEach((n,i)=>pos[n.id]={x:columns[type],y:42+i*Math.min(500/Math.max(items.length-1,1),55)})});
+        const edges=data.edges.filter(e=>visible.has(e.source)&&visible.has(e.target)).map(e=>`<line x1="${pos[e.source].x}" y1="${pos[e.source].y}" x2="${pos[e.target].x}" y2="${pos[e.target].y}" stroke="#b7c7d8" stroke-width="${1+(e.prevalence||0)*2}" opacity=".55"/>`).join(''),colors={family:'#7c3aed',job:'#1769e0',skill:'#16a394',responsibility:'#e58b2b',scenario:'#c05483',evidence:'#64748b'};
+        const nodes=selected.map(n=>{const p=pos[n.id],major=['family','job'].includes(n.type);return `<g class="graph-node" data-node-id="${n.id}" style="cursor:pointer"><circle cx="${p.x}" cy="${p.y}" r="${major?15:8}" fill="${colors[n.type]}" opacity=".92"/><text x="${p.x+(major?22:12)}" y="${p.y+4}" font-size="${major?11:9}" fill="#29445d">${n.label.slice(0,24)}</text></g>`}).join('');svg.innerHTML=edges+nodes;
+        svg.querySelectorAll('.graph-node').forEach(el=>el.addEventListener('click',()=>{const n=data.nodes.find(x=>x.id===el.dataset.nodeId);document.getElementById('graph-detail').innerHTML=`<h3>${n.label}</h3><p class="card-sub">${n.type} · ${n.review_status||'无需审核'} ${n.version?'· v'+n.version:''}</p>${n.evidence_text?`<p>${n.evidence_text}</p>`:''}${n.source_url?`<a href="${n.source_url}" target="_blank">查看原始来源</a>`:''}`;}));
+    }
+    function askRecommendedQuestion(text){document.getElementById('knowledge-question').value=text;document.getElementById('knowledge-question').focus();}
+    function normalizedSearchEvidence(items){return items.map((item,index)=>({citation_id:`K${index+1}`,source_kind:'jd',evidence_type:'job_description',family_code:item.family_code,title:(item.text||'').split('\n')[0]||'岗位证据',organization:item.company_name||item.source_name||'未知来源',record_id:item.record_id,review_status:item.review_status||'unknown',text:item.text,source_url:item.source_url,score:item.score}));}
+    function renderKnowledgeEvidence(items){const box=document.getElementById('knowledge-evidence');if(!items.length){box.innerHTML='<div class="empty">没有检索到可支持当前问题的证据</div>';return;}box.innerHTML=items.map(item=>{const url=safeExternalUrl(item.source_url),kind=item.source_kind==='external'?'外部标准':'岗位 JD',status=item.review_status||'unknown';return `<div class="evidence-card"><div class="evidence-head"><span class="badge ${item.source_kind==='external'?'green':'blue'}">${escapeHtml(item.citation_id)} · ${kind}</span><span class="evidence-meta">相关度 ${Number(item.score||0).toFixed(2)}</span></div><h4>${escapeHtml(item.title)}</h4><div class="evidence-meta">${escapeHtml(item.organization)} · ${escapeHtml(item.record_id||'无记录号')} · ${escapeHtml(status)}</div><div class="evidence-text">${escapeHtml(item.text)}</div>${url?`<a class="evidence-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">查看原始来源</a>`:''}</div>`;}).join('');}
+    function knowledgeInputs(){return {question:document.getElementById('knowledge-question').value.trim(),family:document.getElementById('knowledge-family').value,limit:Number(document.getElementById('knowledge-limit').value),message:document.getElementById('knowledge-message')};}
+    async function searchKnowledgeEvidence(){const input=knowledgeInputs();if(!input.question){input.message.textContent='请输入需要检索的问题';return;}input.message.textContent='正在检索可追溯证据...';const q=new URLSearchParams({q:input.question,limit:String(input.limit)});if(input.family)q.set('family_code',input.family);try{const r=await request('/api/knowledge/search?'+q);const evidence=normalizedSearchEvidence(r.items);renderKnowledgeEvidence(evidence);document.getElementById('knowledge-answer').innerHTML=`<div class="answer-head"><h3>检索结果</h3><span class="badge blue">${escapeHtml(r.mode)}</span></div><p class="card-sub">共命中 ${r.total} 条知识片段，当前展示 ${evidence.length} 条。</p><div class="answer-content">证据已编号为 [K1]、[K2]，可继续点击“生成证据回答”。</div>`;input.message.textContent=evidence.length?'检索完成':'未检索到相关证据';}catch(e){input.message.textContent='检索失败：'+e.message;renderKnowledgeEvidence([]);}}
+    async function answerKnowledgeQuestion(){const input=knowledgeInputs(),button=document.getElementById('knowledge-answer-button');if(!input.question){input.message.textContent='请输入需要回答的问题';return;}button.disabled=true;input.message.textContent='正在检索证据并生成回答...';try{const r=await request('/api/knowledge/answer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:input.question,family_code:input.family||null,limit:input.limit})});const modeLabel=r.mode==='grounded_llm'?'证据约束回答':'证据摘要';document.getElementById('knowledge-answer').innerHTML=`<div class="answer-head"><h3>证据回答</h3><span class="badge ${r.mode==='grounded_llm'?'green':'amber'}">${modeLabel}</span></div><p class="card-sub">引用校验：${r.citations_valid?'已通过':'未通过'}</p><div class="answer-content">${escapeHtml(r.answer).replace(/\n/g,'<br>')}</div>${r.warning?`<div class="knowledge-warning">${escapeHtml(r.warning)}</div>`:''}`;renderKnowledgeEvidence(r.evidence);input.message.textContent='回答完成';}catch(e){input.message.textContent='回答失败：'+e.message;document.getElementById('knowledge-answer').innerHTML=`<div class="answer-head"><h3>证据回答</h3><span class="badge red">无法回答</span></div><div class="answer-content">${escapeHtml(e.message)}</div>`;renderKnowledgeEvidence([]);}finally{button.disabled=false;}}
+    async function parseResume() {
+        const input=document.getElementById('resume-file'), box=document.getElementById('resume-summary'); if(!input.files[0]){box.textContent='请选择简历文件';return;}
+        const form=new FormData();form.append('file',input.files[0]);box.textContent='正在解析技能证据...';
+        const enrich=document.getElementById('resume-model-enrichment').checked;
+        try { const r=await request('/api/resumes/parse?enrich='+enrich,{method:'POST',body:form});resumeId=r.resume_id;renderResumeProfile(r);await loadJobRecommendations(); }
+        catch(e){box.textContent='解析失败：'+e.message;}
+    }
+    function renderResumeProfile(r){const box=document.getElementById('resume-summary'),mode=r.parser_mode==='hybrid'?'规则与模型联合解析':'规则解析',timeline=[...(r.work_experiences||[]),...(r.project_experiences||[])];box.innerHTML=`<div class="recommendation-rank"><b>${escapeHtml(r.filename)}</b><span class="badge ${r.parser_mode==='hybrid'?'green':'blue'}">${mode}</span></div><p>${Number(r.experience_years||0).toFixed(1)} 年有效经验 · ${(r.work_experiences||[]).length} 段工作 · ${(r.project_experiences||[]).length} 个项目</p><div class="skill-list">${(r.skills||[]).map(s=>`<span class="skill-chip" title="${escapeHtml(s.evidence_text||'无证据文本')}">${escapeHtml(s.name)} · ${escapeHtml(s.proficiency||'未判定')}</span>`).join('')||'<span class="badge amber">未识别到技能证据</span>'}</div><div class="readiness-list" style="margin-top:12px">${timeline.map(item=>`<div class="readiness-item"><span><b>${escapeHtml(item.name||item.company||'未命名经历')}</b><br><small>${escapeHtml(item.role||'')} ${escapeHtml(item.start_date||'日期未知')} 至 ${escapeHtml(item.end_date||'日期未知')}</small><br><small>原文：${escapeHtml(item.evidence_text||'无原文证据')}</small></span></div>`).join('')}</div>${(r.parse_warnings||[]).length?`<p class="card-sub">解析提示：${r.parse_warnings.map(escapeHtml).join('、')}</p>`:''}`;}
+    async function loadJobRecommendations(){const box=document.getElementById('job-recommendations');if(!resumeId){box.innerHTML='<div class="empty">请先解析简历</div>';return;}box.innerHTML='<div class="empty">正在生成岗位推荐...</div>';try{const r=await request('/api/matches/recommend',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resume_id:resumeId,limit:5})});if(!r.items.length){box.innerHTML='<div class="empty">当前没有具备技能证据的可推荐岗位画像</div>';return;}box.innerHTML=`<div class="recommendation-grid">${r.items.map(item=>`<div class="recommendation-card"><div class="recommendation-rank"><span class="badge blue">第 ${item.rank} 名</span><span class="badge ${item.confidence==='high'?'green':'amber'}">${item.confidence==='high'?'高置信':item.confidence==='medium'?'中置信':'低置信'}</span></div><h4>${escapeHtml(item.job_name)} · ${escapeHtml(item.level||'未分级')}</h4><p class="card-sub">岗位族 ${escapeHtml(item.family_code)} · ${escapeHtml(item.period_key||'长期画像')} · ${escapeHtml(item.profile_kind||'通用')} · 样本 ${escapeHtml(item.sample_status||'未标注')} · 证据 ${Number(item.evidence_count||0)}</p><div class="recommendation-score">${Number(item.total_score).toFixed(1)}</div><p class="card-sub">${(item.positive_factors||[]).map(escapeHtml).join('；')||'等待更多正向证据'}</p><div class="skill-list">${(item.missing_required_skills||[]).slice(0,4).map(s=>`<span class="badge red">缺 ${escapeHtml(s)}</span>`).join('')||'<span class="badge green">核心技能已覆盖</span>'}</div>${(item.confidence_notes||[]).length?`<p class="card-sub">${item.confidence_notes.map(escapeHtml).join('；')}</p>`:''}<button class="btn small" style="margin-top:12px" onclick="runMatch(${item.profile_id})">深度诊断</button></div>`).join('')}</div>`;}catch(e){box.innerHTML=`<div class="empty">推荐失败：${escapeHtml(e.message)}</div>`;}}
+    async function runMatch(profileId=null) {
+        const select=document.getElementById('match-job'),selectedId=select.options[select.selectedIndex]?.dataset.id,id=profileId||selectedId,msg=document.getElementById('match-message'); if(!resumeId){msg.textContent='请先解析简历';return;}if(!id){msg.textContent='请选择目标岗位';return;}
+        if(profileId){const option=[...select.options].find(item=>String(item.dataset.id)===String(profileId));if(option)option.selected=true;}
+        msg.textContent='正在计算多维匹配...'; try {const r=await request('/api/matches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resume_id:resumeId,job_profile_id:Number(id)})});msg.textContent='';renderMatch(r);}catch(e){msg.textContent=e.message;}
+    }
+    function renderLearningPlan(plan){const periodLabels={'0-30':'0-30天','31-60':'31-60天','61-90':'61-90天'};return `<div class="phase-grid">${(plan.phases||[]).map(phase=>`<div class="phase-card"><h4>${periodLabels[phase.period]||escapeHtml(phase.period)} · ${escapeHtml(phase.title)}</h4>${phase.nodes.length?phase.nodes.map(node=>`<div class="learning-node"><b>${escapeHtml(node.skill)}</b><p>${escapeHtml(node.reason)}</p><span>验收：${(node.completion_criteria||[]).map(escapeHtml).join('；')}</span>${node.estimated_uplift?`<p>预计提升上限 ${Number(node.estimated_uplift).toFixed(1)} 分</p>`:''}</div>`).join(''):'<p class="card-sub">本阶段无新增技能节点，按综合项目推进</p>'}${phase.project?`<div class="learning-node"><b>${escapeHtml(phase.project.focus||'综合项目')}</b><p>${escapeHtml(phase.project.summary||'')}</p><span>交付：${(phase.project.deliverables||[]).map(escapeHtml).join('；')}</span></div>`:''}</div>`).join('')}</div><p>完成路径后的理论分数上限：${Number(plan.projected_score||0).toFixed(1)}</p>`;}
+    function renderMatch(r){const labels={required_skill_coverage:'必备技能',skill_proficiency:'技能熟练度',experience_level:'经验与层级',project_evidence:'项目证据',skill_recency:'技能时效',preferred_skill_coverage:'加分技能',responsibility_scenario:'职责与场景'};const box=document.getElementById('match-result');box.style.display='block';box.innerHTML=`<div class="grid two"><div><div class="score-ring" style="--score:${r.total_score}"><strong>${Number(r.total_score).toFixed(1)}</strong></div><p style="text-align:center;color:var(--muted)">${escapeHtml(r.job_name)} · ${r.match_band==='high'?'高匹配':r.match_band==='medium'?'中匹配':'低匹配'} · ${escapeHtml(r.confidence)}置信</p>${(r.score_caps||[]).length?'<p class="card-sub">存在核心能力限制，最终分数已按证据条件限制</p>':''}</div><div class="dimensions">${Object.entries(r.dimensions||{}).map(([key,item])=>`<div class="dimension"><span>${labels[key]||escapeHtml(key)}</span><div class="bar"><span style="width:${item.max_score?item.score/item.max_score*100:0}%"></span></div><b>${Number(item.score).toFixed(1)}/${item.max_score}</b></div>`).join('')}</div></div><hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><div class="grid two"><div><h3>技能差距</h3><div class="skill-list">${(r.missing_required_skills||[]).map(s=>`<span class="badge red">缺失 · ${escapeHtml(s)}</span>`).join('')||'<span class="badge green">必备技能已覆盖</span>'}</div><h3 style="margin-top:20px">主要影响因素</h3>${[...(r.positive_factors||[]),...(r.negative_factors||[])].map(x=>`<div class="change-item"><span>${escapeHtml(x)}</span></div>`).join('')}</div><div><h3>匹配证据</h3><div id="match-evidence">${Object.entries(r.dimensions||{}).map(([key,item])=>`<div class="match-evidence-item"><b>${labels[key]||escapeHtml(key)}</b><p>${escapeHtml(item.explanation)}</p><span>${(item.evidence||[]).map(escapeHtml).join('；')||'当前维度缺少直接证据'}</span></div>`).join('')}</div></div></div><hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><h3>30/60/90 天学习路径</h3>${renderLearningPlan(r.learning_plan||{phases:[],project:{},projected_score:r.total_score})}`;}
+    async function loadReviews(){const box=document.getElementById('review-list');try{const r=await request('/api/reviews');box.innerHTML=r.items.length?r.items.map(x=>`<div class="review-row"><div><h4>${x.entity_type} #${x.entity_id}</h4><p>${x.reason} · 置信信息 ${JSON.stringify(x.payload)}</p></div><div class="review-actions"><button class="btn small green" onclick="decideReview(${x.id},'approved')">通过</button><button class="btn small red" onclick="decideReview(${x.id},'rejected')">驳回</button></div></div>`).join(''):'<div class="empty">暂无待审核内容</div>';}catch(e){box.innerHTML=`<div class="empty">${e.message}</div>`;}}
+    async function decideReview(id,decision){const note=prompt('审核说明（可选）','');try{await request(`/api/reviews/${id}/decision`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({decision,reviewer_note:note})});loadReviews();refreshStats();}catch(e){alert(e.message);}}
+    function metricPercent(value){return value===null||value===undefined?'未评测':(value*100).toFixed(1)+'%';}
+    function extendedMetrics(x){const m=x.details?.extended_metrics||{};if(x.metric_name==='job_recommendation')return `Top-1 ${metricPercent(m.top1_accuracy)} · Recall@5 ${metricPercent(m.recall_at_5)} · MRR ${metricPercent(m.mrr)} · NDCG@5 ${metricPercent(m.ndcg_at_5)}`;if(x.metric_name==='resume_extraction')return `时间线 ${metricPercent(m.timeline_accuracy)} · 证据 ${metricPercent(m.evidence_validity)} · 项目技能 ${metricPercent(m.project_skill_accuracy)} · 成果 ${metricPercent(m.achievement_accuracy)}`;return '—';}
+    function readinessRow(label,passed,detail){return `<div class="readiness-item"><span>${label}<br><small style="color:var(--muted)">${detail}</small></span><span class="badge ${passed?'green':'amber'}">${passed?'已满足':'未满足'}</span></div>`;}
+    function acceptanceRows(metrics){const labels={jd_benchmark_cases:'JD标注样本',jd_parsing_accuracy:'JD解析',resume_extraction_accuracy:'简历提取',matching_accuracy:'人岗匹配',unit_test_coverage:'自动测试覆盖',emerging_profile_case:'新岗位案例',existing_profile_case:'既有岗位案例',adjacent_quarter_evolution:'季度演化'};return Object.entries(metrics).map(([key,item])=>{const status=item.status==='not_measured'?'尚未测量':item.status==='passed'?'已满足':'待补齐',badge=item.status==='passed'?'green':'amber',value=item.current===null||item.current===undefined?'无实测结果':`当前 ${Array.isArray(item.current)?item.current.join('~'):item.current}`;return `<div class="readiness-item"><span>${escapeHtml(labels[key]||key)}<br><small>${escapeHtml(value)}</small></span><span class="badge ${badge}">${status}</span></div>`;}).join('');}
+    function acceptancePercent(value){return value===null||value===undefined?'未测量':(Number(value)*100).toFixed(1)+'%';}
+    function acceptanceBoolean(value){return value===null||value===undefined?'未测量':value?'已确认':'仍需确认';}
+    function collectionCard(latest){const batch=latest.batch,run=latest.run;if(!batch&&!run)return '<div class="empty">暂无采集记录</div>';const rows=[];if(batch)rows.push(`<div class="readiness-item"><span><b>导入批次</b><br><small>${escapeHtml(batch.filename)} · ${escapeHtml(batch.batch_id)}</small><br><small>导入 ${batch.imported}，复核 ${batch.review}，隔离 ${batch.quarantined}，重复 ${batch.duplicates}</small></span><span class="badge ${batch.status==='completed'?'green':'amber'}">${escapeHtml(batch.status)}</span></div>`);if(run)rows.push(`<div class="readiness-item"><span><b>采集任务</b><br><small>${escapeHtml(run.run_id)} · 来源 ${run.source_ids.length}</small><br><small>获取 ${run.fetched}，有效 ${run.valid}，复核 ${run.review}，隔离 ${run.quarantined}</small></span><span class="badge ${run.status==='completed'?'green':'amber'}">${escapeHtml(run.status)}</span></div>`);return `<div class="readiness-list">${rows.join('')}</div>`;}
+    async function loadAcceptance(){try{const r=await request('/api/acceptance/summary'),m=r.data_quality.metrics,latest=r.data_quality.latest_collection;document.getElementById('system-acceptance').innerHTML=`<div class="card"><h3>系统质量状态</h3><div class="readiness-list">${acceptanceRows(r.minimum.metrics)}</div></div><div class="card"><h3>数据健康</h3><div class="grid stats">${statCards([{label:'原始岗位',value:m.raw_job_postings,note:'保留全部采集记录'},{label:'可用岗位',value:m.usable_unique_job_postings,note:'有效且已去重'},{label:'有效率',value:acceptancePercent(m.valid_rate),note:'按原始岗位计算'},{label:'重复率',value:acceptancePercent(m.duplicate_rate),note:'重复记录占比'},{label:'待复核率',value:acceptancePercent(m.review_rate),note:'等待人工确认'},{label:'隔离率',value:acceptancePercent(m.quarantine_rate),note:'未进入正式数据'}])}</div></div><div class="card"><h3>来源结构</h3><div class="grid stats">${statCards([{label:'来源类型',value:m.source_type_count,note:'已审核来源分类'},{label:'来源域名',value:m.source_domain_count,note:'已审核来源站点'},{label:'来源域名完整度',value:acceptancePercent(m.source_domain_coverage),note:'当前已审核记录的域名可用率'},{label:'域名完整记录',value:m.known_source_domain_job_postings,note:'可识别来源站点'},{label:'缺少域名',value:m.missing_source_domain_job_postings,note:'来源站点待补充'},{label:'最大单域名占比',value:acceptancePercent(m.maximum_single_domain_share),note:'当前已知域名分布'},{label:'跨来源核心技能',value:acceptancePercent(m.cross_source_confirmed_core_skill_coverage),note:'具备多源确认'},{label:'核心技能全部经多源确认',value:acceptanceBoolean(m.all_high_confidence_core_skills_confirmed),note:'当前核心技能确认状态'}])}</div></div><div class="card"><h3>岗位族覆盖</h3><div class="grid stats">${statCards([{label:'覆盖岗位族',value:m.family_coverage,note:'具有可用岗位'},{label:'每族最低样本',value:m.minimum_usable_samples_per_covered_family,note:'覆盖岗位族中的最低值'},{label:'可信时间',value:acceptancePercent(m.trusted_publication_coverage),note:'已审核发布时间覆盖'},{label:'首次发现记录',value:acceptancePercent(m.first_seen_coverage),note:'支持持续观测'},{label:'可信或可观测时间',value:acceptancePercent(m.trusted_publication_or_first_seen_coverage),note:'当前时间信息可用率'},{label:'可用于趋势分析',value:m.evolution_eligible_job_postings,note:'时间可信且来源已审核'}])}</div></div><div class="card"><h3>最近采集</h3>${collectionCard(latest)}</div>`;}catch(e){document.getElementById('system-acceptance').innerHTML=`<div class="card"><div class="empty">${escapeHtml(e.message)}</div></div>`;}}
+    async function runEvaluation(){const input=document.getElementById('evaluation-file'),message=document.getElementById('evaluation-message'),button=document.getElementById('evaluation-run-button');if(!input.files[0]){message.textContent='请选择JSONL或JSON评测文件';return;}const form=new FormData();form.append('file',input.files[0]);button.disabled=true;message.textContent='正在执行可复现评测...';try{const r=await request('/api/evaluation/run',{method:'POST',body:form});message.textContent=`评测完成：${r.case_count}条案例，结果已保存。`;await loadEvaluation();}catch(e){message.textContent='评测失败：'+e.message;}finally{button.disabled=false;}}
+    async function loadEvaluation(){try{const r=await request('/api/evaluation/summary'),latest=r.latest||{},ready=r.readiness,rank=latest.job_recommendation?.details?.extended_metrics||{};document.getElementById('evaluation-targets').innerHTML=statCards([{label:'JD解析准确率',value:metricPercent(latest.jd_parsing?.accuracy),note:'基于标注集自动计算'},{label:'简历提取准确率',value:metricPercent(latest.resume_extraction?.accuracy),note:'基于标注集自动计算'},{label:'人岗匹配准确率',value:metricPercent(latest.matching?.accuracy),note:'基于标注集自动计算'},{label:'Top-1',value:metricPercent(rank.top1_accuracy),note:'岗位推荐首位命中'},{label:'Recall@5',value:metricPercent(rank.recall_at_5),note:'前五相关岗位召回'},{label:'MRR / NDCG@5',value:`${metricPercent(rank.mrr)} / ${metricPercent(rank.ndcg_at_5)}`,note:'推荐排序质量'}]);document.getElementById('evaluation-readiness').innerHTML=readinessRow('数据集可用',ready.jd_case_count>0,`${ready.jd_case_count}条JD案例`)+readinessRow('指标结果完整',ready.all_metrics_present,'JD解析、简历提取、人岗匹配')+readinessRow('质量检查通过',ready.all_accuracy_targets_met,'根据实测结果自动判断')+readinessRow('综合质量状态',ready.meets_jd_case_requirement&&ready.all_accuracy_targets_met,'结合数据规模与实测结果');document.getElementById('evaluation-runs').innerHTML=r.runs.length?r.runs.map(x=>`<tr><td>${escapeHtml(x.metric_name)}</td><td>${escapeHtml(x.dataset_name)}</td><td>${x.sample_count}</td><td>${metricPercent(x.precision)}</td><td>${metricPercent(x.recall)}</td><td>${metricPercent(x.f1)}</td><td>${metricPercent(x.accuracy)}</td><td>${extendedMetrics(x)}</td></tr>`).join(''):'<tr><td colspan="8" class="empty">暂无自动评测记录</td></tr>';}catch(e){document.getElementById('evaluation-message').textContent='加载评测结果失败：'+e.message;}}
+    refreshStats(); loadProfiles();
+</script>
+</body>
+</html>

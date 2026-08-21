@@ -1,0 +1,7 @@
+张三
+4年Java后端开发经验，本科学历。
+
+项目经历：负责电商交易微服务平台建设，使用Java、Spring Boot、MySQL、Redis和Docker，实现订单与库存服务。
+熟悉Git和Linux，参与CI/CD流水线建设。
+希望应聘Java云原生开发工程师。
+
