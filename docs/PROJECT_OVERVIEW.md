@@ -118,6 +118,8 @@ Required coverage gate: 60%
 
 ## 10 分钟 PPT/答辩建议主线
 
+> `docs/assets/screenshots/` 中的图片来自 2026 年 7 月历史演示。界面结构仍可用于说明功能，但截图数字与 2026 年 8 月 21 日主库不同；制作 PPT 时应替换数字或明确标注截图日期。
+
 | 时间 | 内容 | 推荐素材 |
 | --- | --- | --- |
 | 0:00–0:50 | 赛题问题、目标用户和项目价值 | `docs/assets/screenshots/01-system-overview.png` |
